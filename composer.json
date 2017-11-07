@@ -1,5 +1,5 @@
 {
-  "name": "rsky/p2-php",
+  "name": "open774/p2-php",
   "description": "The server side 2ch viewer written in PHP",
   "license": "X11",
   "repositories": [
@@ -37,6 +37,8 @@
     "pear-pear.php.net/xml_rss": "1.0.2",
     "symfony/console": "2.2.*",
     "symfony/yaml": "2.2.*",
+    "jakeasmith/http_build_url": "1.0.*",
     "dropbox/dropbox-sdk": "dev-master"
+
   }
 }

@@ -581,8 +581,8 @@ EOJS;
 <div id="spm" class="col-xs-8">
 <div id="spm-header" class="spm-section">&gt;&gt;<span id="spm-num">???</span></div>
 <div id="spm-menu" class="spm-section">
-    <span id="spm-reply-noquote" onclick="SPM.open('res')">これにレス</span>
-    <span id="spm-reply-quote" onclick="SPM.open('res_quote')">引用してレス</span>
+    <span id="spm-reply-noquote" onclick="SPM.replyTo(false)">これにレス</span>
+    <span id="spm-reply-quote" onclick="SPM.replyTo(true)">引用してレス</span>
 EOP;
         if ($_conf['expack.aas.enabled']) {
             $spm .= <<<EOP
@@ -839,7 +839,7 @@ EOP;
             } else {
                 $link_url = $url;
             }
-            return "<a href=\"{$link_url}\">{$str}</a>";
+            return "<a href=\"{$link_url}\" target=\"_blank\">{$str}</a>";
         }
         return false;
     }

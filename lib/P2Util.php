@@ -24,9 +24,14 @@ class P2Util
     static private $_hostDirs = array();
 
     /**
-     * isHost2chs() のキャッシュ
+     * isHost2ch() のキャッシュ
      */
-    static private $_hostIs2chs = array();
+    static private $_hostIs2ch = array();
+
+    /**
+     * isHost5ch() のキャッシュ
+     */
+    static private $_hostIs5ch = array();
 
     /**
      * isHostBe2chNet() のキャッシュ
@@ -62,6 +67,11 @@ class P2Util
      * isHost2chSc()のキャッシュ
      */
     static private $_hostIs2chSc = array();
+
+    /**
+     * isHostOpen2ch()のキャッシュ
+     */
+    static private $_hostIsOpen2ch = array();
 
     /**
      * P2Imeオブジェクト
@@ -381,7 +391,21 @@ class P2Util
         // 2channel or bbspink
         if (self::isHost2chs($host)) {
             $host_dir = $base_dir . DIRECTORY_SEPARATOR . '2channel';
+        } elseif (self::isHostOpen2ch($host)) {
+            //互換性維持のため旧式のディレクトリを指定
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . rawurlencode($host);
+            if (!file_exists($host_dir)) {
+                //旧式のディレクトリが無い=無い新規インストール時or鯖移転のため、ディレクトリの指定を変更
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . 'open2ch';
+            }
 
+        } elseif (self::isHost2chSc($host)) {
+            //互換性維持のため旧式のディレクトリを指定
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . rawurlencode($host);
+            if (!file_exists($host_dir)) {
+                //旧式のディレクトリが無い=無い新規インストール時or鯖移転のため、ディレクトリの指定を変更
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . '2channel_sc';
+            }
             // machibbs.com
         } elseif (self::isHostMachiBbs($host)) {
             $host_dir = $base_dir . DIRECTORY_SEPARATOR . 'machibbs.com';
@@ -785,17 +809,48 @@ class P2Util
     // {{{ isHost2chs()
 
     /**
-     * host が 2ch or bbspink なら true を返す
+     * host が 2ch or 5ch or bbspink なら true を返す
      *
      * @param string $host
      * @return bool
      */
     static public function isHost2chs($host)
     {
-        if (!array_key_exists($host, self::$_hostIs2chs)) {
-            self::$_hostIs2chs[$host] = (bool)preg_match('<^\\w+\\.(?:2ch\\.net|5ch\\.net|bbspink\\.com)$>', $host);
+        return self::isHost2ch($host) || self::isHost5ch($host) || self::isHostBbsPink($host);
+    }
+
+    // }}}
+    // {{{ isHost2ch()
+
+    /**
+     * host が 2ch なら true を返す
+     *
+     * @param string $host
+     * @return bool
+     */
+    static public function isHost2ch($host)
+    {
+        if (!array_key_exists($host, self::$_hostIs2ch)) {
+            self::$_hostIs2ch[$host] = (bool)preg_match('<^\\w+\\.(?:2ch\\.net)$>', $host);
         }
-        return self::$_hostIs2chs[$host];
+        return self::$_hostIs2ch[$host];
+    }
+
+    // }}}
+    // {{{ isHost5ch()
+
+    /**
+     * host が 5ch なら true を返す
+     *
+     * @param string $host
+     * @return bool
+     */
+    static public function isHost5ch($host)
+    {
+        if (!array_key_exists($host, self::$_hostIs5ch)) {
+            self::$_hostIs5ch[$host] = (bool)preg_match('<^\\w+\\.(?:5ch\\.net)$>', $host);
+        }
+        return self::$_hostIs5ch[$host];
     }
 
     // }}}
@@ -989,6 +1044,25 @@ class P2Util
     }
 
     // }}}
+    // {{{ isHostOpen2ch()
+
+    /**
+     * host が おーぷん2ch なら true を返す
+     *
+     * @param string $host
+     * @return  boolean
+     */
+    static public function isHostOpen2ch($host)
+    {
+        if (!array_key_exists($host, self::$_hostIsOpen2ch)) {
+            self::$_hostIsOpen2ch[$host] = (bool)preg_match('/\\.(open2ch\\.net)$/', $host);
+        }
+        return self::$_hostIsOpen2ch[$host];
+    }
+
+    // }}}
+
+
     // {{{ header_nocache()
 
     /**
@@ -1811,12 +1885,20 @@ ERR;
                 }
 
                 // 2ch or pink by ula.cc(bintan / bekkanko) - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            } elseif (preg_match('<^https?://(?:(?:bintan|same)\\.ula\\.cc|ula\\.2ch\\.net)/test/(?:read\\.(?:cgi|html|so)|r\\.so)
+            } elseif (preg_match('<^https?://(?:(?:bintan|same)\\.ula\\.cc|ula\\.(?:2ch|5ch)\\.net)/test/(?:read\\.(?:cgi|html|so)|r\\.so)
                     /(.+)/(\\w+)/([0-9]+)(?:/([^/]*))>x', $nama_url, $matches)) {
                 $host = $matches[1];
                 $bbs = $matches[2];
                 $key = $matches[3];
                 $ls = (isset($matches[4]) && strlen($matches[4])) ? $matches[4] : '';
+
+                // 2ch or pink by ula.cc(new bintan) - http://choco.2ch.net/test/read.cgi/event/1027770702/
+            } elseif (preg_match('<^https?://(ula\\.(?:2ch|5ch)\\.net)/(?:2ch|5ch)
+                    /(\\w+)/(.+)/(\\d+)(?:/([^/]*))>x', $nama_url, $matches)) {
+                $host = $matches[3];
+                $bbs = $matches[2];
+                $key = $matches[4];
+                $ls = (isset($matches[5]) && strlen($matches[5])) ? $matches[5] : '';
 
                 // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
             } elseif (preg_match('<^(https?://(.+)(?:/[^/]+)?/(\\w+)
@@ -1996,14 +2078,15 @@ ERR;
      * （認証コードはurlencodeされたままの状態）
      *
      * @access  public
+     * @param string $host Be認証するホスト名
      * @return  array|false|null  認証コード配列|認証できなかった|無設定だった
      */
-    static public function getBe2chCodeWithUserConf()
+    static public function getBe2chCodeWithUserConf($host)
     {
         global $_conf;
 
         if ($_conf['be_2ch_mail'] && strlen($_conf['be_2ch_password'])) {
-            $r = self::getBe2chCodeByMailPass($_conf['be_2ch_mail'], $_conf['be_2ch_password']);
+            $r = self::_getBe2chCodeByMailPass($_conf['be_2ch_mail'], $_conf['be_2ch_password'], $host);
             if (is_array($r)) {
                 return $r;
             }
@@ -2019,23 +2102,20 @@ ERR;
      * （認証コードはurlencodeされたままの状態）
      *
      * @access  private
+     * @param string $host Be認証するホスト名
      * @return  array|string 成功|エラーメッセージ
      */
-    static public function getBe2chCodeByMailPass($mail, $pass)
+    static private function _getBe2chCodeByMailPass($mail, $pass, $host)
     {
         global $_conf;
 
-        //require_once 'HTTP/Request.php';
-
-        $params = array('timeout' => $_conf['fsockopen_timeout']);
-
-        if (!empty($GLOBALS['_conf']['proxy_use'])) {
-            $params['proxy_host'] = $GLOBALS['_conf']['proxy_host'];
-            $params['proxy_port'] = $GLOBALS['_conf']['proxy_port'];
-        }
+        $url = http_build_url(array(
+            "scheme" => $_conf['2ch_ssl.post'] ? "https" : "http",
+            "host" => P2Util::isHost5ch($host) ? "be.5ch.net" : "be.2ch.net",
+            "path" => "index.php"));
 
         try {
-            $req = P2Commun::createHTTPRequest('http://be.2ch.net/index.php', HTTP_Request2::METHOD_POST);
+            $req = P2Commun::createHTTPRequest($url, HTTP_Request2::METHOD_POST);
 
             $req->setHeader('User-Agent', P2Commun::getP2UA(true, true));
 

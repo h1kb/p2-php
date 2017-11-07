@@ -1,4 +1,4 @@
-﻿# rep2 expack 全部入り by 2ch774
+﻿# rep2 expack 全部入り by open774
 
 * rep2-expack https://github.com/rsky/p2-php
 * rep2-expack +live https://github.com/pluslive/p2-php
@@ -8,17 +8,32 @@
 
 独自の改良も行っています。
 
-### 追加機能
+* [スクリーンショット](https://open774.github.io/p2-php/screenshots.html)
+* [Wiki](https://github.com/open774/p2-php/wiki)
+* **[FAQ](https://github.com/open774/p2-php/wiki/FAQ) スレに書く前にからならず確認**
+
+### 主な追加機能
 
 各機能の説明はdocディレクトリのREADMEファイルを見てください。
 
+* cronとかで最近読んだスレなどのdatをDL出来るスクリプト追加
+  <pre> php scripts/fetch-dat.php --mode モードを一つ指定(fav recent res_hist)</pre>
+* 名無しが節穴になる板に名無しで書き込むときに警告を出す機能を追加
+* NGあぼーんの対象になったレスのIDを自動的にNGあぼーんする機能を追加
+* 「設定管理」からキャッシュ・履歴の消去できる機能を追加
+* 本家からbeのログイン部分を移植してBE2.0に対応
+* rep2に登録された外部板のリンクををrep2で開けるようにした（Janeと同じ動作）
+* 0ちゃんねるスクリプトを使用した外部板の過去ログDATを取り込み対応
+* SOCKS5プロクシ経由の接続に対応(人柱)
+* tor内の掲示板(.onionドメイン)をtor経由で閲覧する機能を追加(人柱)
+* curl を用いた並列ダウンロード機能を追加(人柱機能)
 
 ## セットアップ
 
 ### Git & Composerで
 
 1. 本体をclone
-  <pre>git clone git://github.com/2ch774/p2-php.git
+  <pre>git clone git://github.com/open774/p2-php.git
   cd p2-php</pre>
 
 2. 依存ライブラリをダウンロード
@@ -58,7 +73,7 @@ moriyoshi++
 
 スレに貼られている画像を自動で保存する機能、**ImageCache2**があります。
 
-see also [doc/ImageCache2/README.txt](https://github.com/rsky/p2-php/blob/master/doc/ImageCache2/README.txt), [doc/ImageCache2/INSTALL.txt](https://github.com/rsky/p2-php/blob/master/doc/ImageCache2/INSTALL.txt)
+see also [doc/ImageCache2/README.txt](https://github.com/open774/p2-php/blob/master/doc/ImageCache2/README.txt), [doc/ImageCache2/INSTALL.txt](https://github.com/open774/p2-php/blob/master/doc/ImageCache2/INSTALL.txt)
 
 ### 準備
 
@@ -83,10 +98,25 @@ see also [doc/ImageCache2/README.txt](https://github.com/rsky/p2-php/blob/master
 
 細かい挙動の変更は `メニュー > 設定管理 > ユーザー設定編集` から行えます。
 
-Webブラウザから変更できない項目は [conf/conf_admin.inc.php](https://github.com/rsky/p2-php/blob/master/conf/conf_admin.inc.php) (基本), [conf/conf_admin_ex.inc.php](https://github.com/rsky/p2-php/blob/master/conf/conf_admin_ex.inc.php) (拡張パック), [conf/conf_ic2.inc.php](https://github.com/rsky/p2-php/blob/master/conf/conf_ic2.inc.php) (ImageCache2) を直接編集します。
+Webブラウザから変更できない項目は [conf/conf_admin.inc.php](https://github.com/open774/p2-php/blob/master/conf/conf_admin.inc.php) (基本), [conf/conf_admin_ex.inc.php](https://github.com/open774/p2-php/blob/master/conf/conf_admin_ex.inc.php) (拡張パック), [conf/conf_ic2.inc.php](https://github.com/open774/p2-php/blob/master/conf/conf_ic2.inc.php) (ImageCache2) を直接編集します。
 
 どういうことができるか書き起こすのが面倒なので設定ファイルのコメントを見てください。
 
+## cronを使った便利機能
+下記のスクリプトをcronで定期的に回すとより便利にrep2を使用することが出来ます。
+必要に応じてどちらか一つを使用すれば充分でしょう。
+
+### 履歴の新着数更新
+ブラウザから更新を行うと一覧の表示に時間がかかるため、subject.txtを更新するためのスクリプトが付属しています。
+並列ダウンロードで高速ですが、使用するために設定変更を行う必要があります。
+
+<pre>php scripts/fetch-subject-txt.php --mode モードを一つ指定(fav recent res_hist)</pre>
+
+### 更新ついでにDATのダウンロード
+並列ダウンロードの代わりにsubject.txtとDATのダウンロード機能を実装したスクリプトです。
+時間はかかりますが、設定変更無しで使えるのでこちらがお手軽です。
+
+<pre>php scripts/fetch-dat.php --mode モードを一つ指定(fav recent res_hist)</pre>
 
 ## 更新
 
@@ -107,7 +137,7 @@ Webブラウザから変更できない項目は [conf/conf_admin.inc.php](https
 * **thermon** https://github.com/thermon/p2-php/
 * **part32の892** *(+live)* https://github.com/pluslive/p2-php/
 * **orzisun** https://github.com/orzisun/p2-php
-* **2ch774** https://github.com/2ch774/p2-php
+* **open774** https://github.com/open774/p2-php
 * **killer4989** https://github.com/killer4989/p2-php
 * **dgg712** https://github.com/dgg712/p2-php
 * **2ch p2/rep2スレの>>1-1000**

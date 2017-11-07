@@ -55,10 +55,10 @@ if (isset($_POST['word'])) {
     <?php echo $_conf['touch_icon_ht']; ?>
     <script type="text/javascript" src="iui/iui.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/json2.js?<?php echo $_conf['p2_version_id']; ?>"></script>
-<?php if (UA::isAndroidWebKit()) { ?>
+<?php /*if (UA::isAndroidWebKit()) { ?>
     <script type="text/javascript">window.jsxpath = { 'useNative': false };</script>
     <script type="text/javascript" src="js/javascript-xpath.js?<?php echo $_conf['p2_version_id']; ?>"></script>
-<?php } ?>
+<?php }*/ ?>
     <script type="text/javascript" src="js/iphone.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/menu_i.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 <?php
@@ -160,7 +160,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 
     <li class="group">履歴</li>
     <?php /* <li><a href="subject.php?spmode=recent&amp;sb_view=shinchaku" target="_self">最近読んだスレの新着</a></li> */ ?>
-    <li><a href="subject.php?spmode=recent" target="_self">最近読んだスレ</a></li>
+    <li><a href="subject.php?spmode=recent&amp;norefresh=true" target="_self">最近読んだスレ</a></li>
 <?php if ($_conf['res_hist_rec_num']) { ?>
     <li><a href="subject.php?spmode=res_hist" target="_self">書き込み履歴</a></li>
 <?php if ($_conf['res_write_rec']) { ?>

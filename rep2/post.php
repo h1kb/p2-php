@@ -144,8 +144,7 @@ if (!empty($_POST['savedraft'])) {
     // 書き込みを一時的に保存
     $post_backup_key = PostDataStore::getKeyForBackup($host, $bbs, $key, !empty($_REQUEST['newthread']));
     PostDataStore::set($post_backup_key, $post_cache);
-    $reload = empty($_POST['from_read_new']);
-    showPostMsg(false, '下書きを保存しました', $reload);
+    showPostMsg(false, '下書きを保存しました', false); // 書き込みが完了(第一引数がtrue)しないとリロードが効かないのでfalseに変更
     exit;
 }
 
@@ -155,12 +154,19 @@ if (P2Util::isHostJbbsShitaraba($host)) {
 
 // {{{ 2chで●ログイン中ならsid追加
 
-if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
+if (!empty($_POST['maru']) and P2Util::isHost2chs($host)) {
+	$maru_time = 0;
+
+    if (file_exists($_conf['sid2ch_php'])) {
+        $maru_time = filemtime($_conf['sid2ch_php']);
+	}
 
     // ログイン後、24時間以上経過していたら自動再ログイン
-    if (file_exists($_conf['idpw2ch_php']) && filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        require_once P2_LIB_DIR . '/login2ch.inc.php';
-        login2ch();
+    if (file_exists($_conf['idpw2ch_php']) && $maru_time < time() - 60*60*24) {
+        if($_conf['2chapi_use'] == 0 && $_conf['2chapi_post'] == 0) {
+            require_once P2_LIB_DIR . '/login2ch.inc.php';
+            login2ch();
+        }
     }
 
     if($_conf['2chapi_use'] == 1 && $_conf['2chapi_post'] ==1) {
@@ -410,7 +416,7 @@ function postIt($host, $bbs, $key, $post)
                 $req->addCookie('DMDM', urlencode( rawurldecode( $_conf['be_2ch_DMDM']) ) );
                 $req->addCookie('MDMD', urlencode( rawurldecode( $_conf['be_2ch_MDMD']) ) );
             } else {
-                $ar = P2Util::getBe2chCodeWithUserConf(); // urlencodeされたままの状態
+                $ar = P2Util::getBe2chCodeWithUserConf($host); // urlencodeされたままの状態
                 if (is_array($ar)) {
                     $req->addCookie('DMDM', $ar['DMDM']);
                     $req->addCookie('MDMD', $ar['MDMD']);
@@ -477,7 +483,10 @@ function postIt($host, $bbs, $key, $post)
 
     // カキコミ成功
     if ($post_seikou || preg_match($kakikonda_match, $body)) {
-        $reload = empty($_POST['from_read_new']);
+        $reload = (bool)$_conf['res_popup_reload'];
+        if (!empty($_POST['from_read_new'])) {
+            $reload = false; //　新着まとめ読みから来た時は強制的にリロード無効
+        }
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
         // +Wiki sambaタイマー
@@ -526,17 +535,21 @@ function showPostMsg($isDone, $result_msg, $reload)
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
 
     $popup_ht = '';
+
+    // 書き込みが完了していたら、リロードする。
     if ($isDone) {
         // 2005/03/01 aki: jigブラウザに対応するため、&amp; ではなく & で
         // 2005/04/25 rsk: <script>タグ内もCDATAとして扱われるため、&amp;にしてはいけない
         $location_noenc = str_replace('&amp;', '&', $location_ht);
+        // ポップアップは自動的に閉じるコードを追加
         if ($popup) {
             $popup_ht = <<<EOJS
 <script type="text/javascript">
 //<![CDATA[
 
 EOJS;
-            if ($_conf['res_popup_reload']) {
+            // リロード有りの時は、親ウインドウをリロード
+            if ($reload) {
                 $popup_ht .= <<<EOJS
     opener.location.href = "{$location_noenc}";
 EOJS;
@@ -548,6 +561,7 @@ EOJS;
 </script>
 EOJS;
         } else {
+        	// ポップアップでは無いときは丸ごとリロード
             $_conf['extra_headers_ht'] .= <<<EOP
 <meta http-equiv="refresh" content="1;URL={$location_noenc}">
 EOP;
@@ -587,14 +601,18 @@ EOP;
             </script>
 EOSCRIPT;
         }
-        if ($reload) {
-            echo $popup_ht;
-        }
+
+        echo $popup_ht;
         $kakunin_ht = '';
     } else {
-        $kakunin_ht = <<<EOP
+    	if($_conf['iphone']) {
+            echo $popup_ht;
+            $kakunin_ht = '';
+        } else {
+        	$kakunin_ht = <<<EOP
 <p><a href="{$location_ht}">確認</a></p>
 EOP;
+        }
     }
 
     echo "</head>\n";

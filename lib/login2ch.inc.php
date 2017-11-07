@@ -23,11 +23,10 @@ function login2ch()
         return false;
     }
 
-    if ($_conf['2ch_ssl.maru']) {
-        $auth2ch_url = 'https://2chv.tora3.net/futen.cgi';
-    } else {
-        $auth2ch_url = 'http://2chv.tora3.net/futen.cgi';
-    }
+    $auth2ch_url= http_build_url(array(
+        "scheme" => 'https',
+        "host" => "2chv.tora3.net",
+        "path" => "futen.cgi"));
 
     $dolib2ch = 'DOLIB/1.00';
 

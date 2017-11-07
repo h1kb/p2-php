@@ -160,7 +160,7 @@ EOP;
     // チェックボックス
     if ($checkbox_bool) {
         echo <<<EOP
-<th{$class_tc}><input id="allbox" name="allbox" type="checkbox" onclick="rep2.subject.checkAll();" title="すべての項目を選択、または選択解除"></th>\n
+<th{$class_tc}><input id="allbox" name="allbox" type="checkbox" title="すべての項目を選択、または選択解除"></th>\n
 EOP;
     }
     // No.
@@ -450,7 +450,7 @@ EOP;
 
         // Birth
         $birth_format = isset($_conf['birth_format']) ? $_conf['birth_format'] : 'y/m/d';
-        $birth = date($birth_format, $aThread->key); // (y/m/d H:i)
+        $birth = date($birth_format, intval($aThread->key)); // (y/m/d H:i)
         $td['birth'] = "<td{$class_t}>{$birth}</td>\n";
         unset($birth_format);
 

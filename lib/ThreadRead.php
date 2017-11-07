@@ -139,17 +139,13 @@ class ThreadRead extends Thread {
         // $url = "http://{$this->host}/{$this->bbs}/dat/{$this->key}.dat";
         // $url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
-        if($_conf['2chapi_ssl.read']) {
-            $url = 'https://api.5ch.net/v1/';
-        } else {
-            $url = 'http://api.5ch.net/v1/';
-        }
+        $url= http_build_url(array(
+            "scheme" => $_conf['2chapi_ssl.read']?"https":"http",
+            "host" => P2Util::isHost5ch($this->host)?"api.5ch.net":"api.2ch.net",
+            "path" => "v1/".$serverName[0] . '/' . $this->bbs . '/' . $this->key));
 
-        $url .= $serverName[0] . '/' . $this->bbs . '/' . $this->key;
         $message = '/v1/' . $serverName[0] . '/' . $this->bbs . '/' . $this->key . $SID2ch . $AppKey;
         $HB = hash_hmac ("sha256", $message, $HMKey);
-
-        $purl = parse_url ($url); // URL分解
 
         try {
             $req = P2Commun::createHTTPRequest ($url, HTTP_Request2::METHOD_POST);
@@ -166,11 +162,6 @@ class ThreadRead extends Thread {
 
             if ($this->modified) {
                 $req->setHeader ('If-Modified-Since', $this->modified);
-            }
-
-            // Basic認証用のヘッダ
-            if (isset ($purl['user']) && isset ($purl['pass'])) {
-                $req->setAuth ($purl['user'], $purl['pass'], HTTP_Request2::AUTH_BASIC);
             }
 
             // POSTする内容
@@ -198,7 +189,7 @@ class ThreadRead extends Thread {
 
             if($_conf['2chapi_debug_print']==1)
             {
-                P2Util::pushInfoHtml('<p>p2 debug(ThreadRead::API): User-Status='.$apiUserStatus.' Thread-Status='.$apiThreadStatus.' HTTP-Status='.$code.'</p>');
+                P2Util::pushInfoHtml('<p>p2 debug(ThreadRead::API):URL='.$url.' User-Status='.$apiUserStatus.' Thread-Status='.$apiThreadStatus.' HTTP-Status='.$code.'</p>');
             }
 
             // APIの返答が過去ログ(Ronin無)だったら過去ログリンクを表示して終了
@@ -328,6 +319,11 @@ class ThreadRead extends Thread {
             } elseif ($code == '501' && $apiUserStatus == '1') { // 浪人無しで尚且つRange付でDAT落ちにアクセスした場合は501
                 return $this->_downloadDat2chNotFound ('302');
             } else {
+            	if($_conf['2chapi_debug_print']==1)
+                {
+                    P2Util::pushInfoHtml('<p>p2 debug(ThreadRead::API):body='.$response->getBody ().'</p>');
+                }
+
                 return $this->_downloadDat2chNotFound ($code);
             }
 
@@ -529,8 +525,6 @@ class ThreadRead extends Thread {
 
         $url = $uri . $ext;
 
-        $purl = parse_url ($url); // URL分解
-
         try {
             $req = P2Commun::createHTTPRequest ($url, HTTP_Request2::METHOD_GET);
 
@@ -729,7 +723,7 @@ class ThreadRead extends Thread {
             } elseif (preg_match ($vip2ch_ssr_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! 新設されたSS速報R板にてスレを発見したですよ!";
                 $movelog_uri = str_replace("news4ssnip", "news4ssr", $read_url);
-                $movelog_url_en = rawurlencode ($kakolog_uri);
+                $movelog_url_en = rawurlencode ($movelog_uri);
                 $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs=news4ssr&amp;key={$this->key}&amp;ls={$this->ls}";
                 $dat_response_msg = "<p>2ch info - 隊長! 新設されたSS速報R板にて、<a href=\"{$movelog_uri}\"{$_conf['bbs_win_target_at']}>スレッド</a> を発見しました。 [<a href=\"{$read_kako_url}\">rep2に取り込んで読む</a>]</p>";
             } else {
