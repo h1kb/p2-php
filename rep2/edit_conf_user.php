@@ -449,6 +449,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('ssl_capath', 'SSL通信で接続先を検証するための証明書があるディレクトリ ex)&quot;/etc/ssl/certs&quot;<br>設定なして動く場合は設定不要'),
         array('2ch_ssl.subject', '2ch.netのsubjec.txtとSETTING.TXTの取得にSSLを使用する'),
         array('2ch_ssl.post', '2ch.netの書き込みにSSLを使用する'),
+        '浪人設定',
+        array('disp_ronin_expiration', '浪人の有効期限を表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -716,6 +718,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.ic2.fav_auto_rank', 'お気にスレに登録されているスレの画像に自動ランクを設定する'),
         array('expack.ic2.fav_auto_rank_setting', 'お気にスレの画像を自動ランク設定する場合の設定値(カンマ区切り)[お気に0のランク値,お気に1のランク値, , ,]'),
         array('expack.ic2.fav_auto_rank_override', 'お気にスレの画像を自動ランク設定する場合に、キャッシュ済み画像に自動ランクを上書きするか'),
+        array('expack.ic2.getter_conn_timeout', 'サーバに接続する際にタイムアウトするまでの時間（秒）[0 => http_conn_timeout に依存]'),
+        array('expack.ic2.getter_read_timeout', 'ダウンロードがタイムアウトするまでの時間（秒）[0 => http_read_timeout に依存]'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

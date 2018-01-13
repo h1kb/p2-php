@@ -14,14 +14,12 @@
 function p2_load_class($name)
 {
     if (preg_match('/^(?:
-            BbsMap |
             BrdCtl |
             BrdMenu(?:Cate|Ita)? |
             DataPhp |
             DownloadDat[0-9A-Z][0-9A-Za-z]* |
             FavSetManager |
             FileCtl |
-            HostCheck |
             JStyle |
             Login |
             MD5Crypt |
